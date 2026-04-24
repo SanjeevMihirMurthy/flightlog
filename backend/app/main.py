@@ -40,9 +40,11 @@ def health():
 
 # API calls
 from app.api.flights_api import router as flights_router
+from app.api.airports_api import router as airports_router
 
 
 # --------------------------------------------------
 # Include Routers
 # --------------------------------------------------
 app.include_router(flights_router)
+app.include_router(airports_router)
