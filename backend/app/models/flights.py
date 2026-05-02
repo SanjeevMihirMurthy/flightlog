@@ -12,6 +12,7 @@ class Flight(Base):
     __tablename__ = "flights"
 
     id = Column(String(26), primary_key=True, default=generate_ulid)
+    user_id = Column(String(26), ForeignKey("users.id"), nullable=True, index=True)  # ADD THIS
     flight_number = Column(String(10), nullable=True)
     airline = Column(String(100), nullable=False)
     origin_iata = Column(String(3), ForeignKey("airports.iata_code"), nullable=False)
@@ -31,5 +32,6 @@ class Flight(Base):
 
     created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
 
+    user = relationship("User", foreign_keys=[user_id])  # ADD THIS
     origin = relationship("Airport", foreign_keys=[origin_iata])
     destination = relationship("Airport", foreign_keys=[destination_iata])

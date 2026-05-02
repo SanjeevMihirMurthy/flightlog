@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
+import os
 
 # --------------------------------------------------
 # Importing Models
@@ -7,6 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.models.airports import Airport
 from app.models.flights import Flight
+from app.models.airlines import Airlines
+from app.models.users import User
 
 
 # --------------------------------------------------
@@ -30,6 +34,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.getenv("SECRET_KEY", "your-secret-key")
+)
+
 @app.get("/")
 def root():
     return {"message": "Flightlog API is running!"}
@@ -41,10 +50,13 @@ def health():
 # API calls
 from app.api.flights_api import router as flights_router
 from app.api.airports_api import router as airports_router
-
+from app.api.airlines_api import router as airlines_router
+from app.api.auth_api import router as auth_router
 
 # --------------------------------------------------
 # Include Routers
 # --------------------------------------------------
 app.include_router(flights_router)
 app.include_router(airports_router)
+app.include_router(airlines_router)
+app.include_router(auth_router)

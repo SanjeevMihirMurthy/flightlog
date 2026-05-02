@@ -23,6 +23,9 @@ if config.config_file_name is not None:
 
 from app.models.flights import Flight
 from app.models.airports import Airport
+from app.models.airlines import Airlines
+from app.models.users import User
+
 from app.db.base import Base
 target_metadata = Base.metadata
 
