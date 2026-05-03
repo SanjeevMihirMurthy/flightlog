@@ -12,4 +12,8 @@ export const AIRPORT_API = {
   GET_BY_IATA: (iata) => `${API_BASE_URL}/airports/${iata}`,
 }
 
+export const AIRLINES_API = {
+  LIST: `${API_BASE_URL}/airlines/all-airlines`
+}
+
 export default API_BASE_URL
