@@ -9,25 +9,25 @@ const apiClient = axios.create({
   },
 });
 
-// apiClient.interceptors.request.use((config) => {
-//   const token = getToken();
+apiClient.interceptors.request.use((config) => {
+  const token = getToken();
 
-//   if (token) {
-//     config.headers.Authorization = `Bearer ${token}`;
-//   }
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
 
-//   return config;
-// });
+  return config;
+});
 
-// apiClient.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     if (error.response?.status === 401) {
-//       removeToken();
-//       window.location.href = "/";
-//     }
-//     return Promise.reject(error);
-//   }
-// );
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      removeToken();
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default apiClient;

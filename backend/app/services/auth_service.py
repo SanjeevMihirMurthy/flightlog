@@ -23,8 +23,11 @@ class AuthService:
                 picture=picture
             )
             db.add(user)
-            db.commit()
-            db.refresh(user)
+        else:
+            user.name = name
+            user.picture = picture
+        db.commit()
+        db.refresh(user)
         return user
 
     @staticmethod

@@ -16,4 +16,18 @@ export const AIRLINES_API = {
   LIST: `${API_BASE_URL}/airlines/all-airlines`
 }
 
+export const AUTH_API = {
+  LOGIN: `${API_BASE_URL}/auth/login`,
+  ME: `${API_BASE_URL}/auth/me`,
+}
+
+export const TRACKING_API = {
+  STATUS: (flightNumber, date) => {
+    const params = new URLSearchParams({ flight_number: flightNumber })
+    if (date) params.set('flight_date', date)
+    return `${API_BASE_URL}/tracking/status?${params.toString()}`
+  },
+  LIVE: (flightNumber) => `${API_BASE_URL}/tracking/live?${new URLSearchParams({ flight_number: flightNumber }).toString()}`,
+}
+
 export default API_BASE_URL
