@@ -4,6 +4,7 @@ const styles = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap');
 
   .login-root {
+    position: relative;
     min-height: 100vh;
     background: #080b10;
     font-family: 'DM Mono', monospace;
@@ -11,16 +12,44 @@ const styles = `
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+  }
+
+  .login-video {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  .login-video-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background:
+      linear-gradient(to bottom, rgba(8,11,16,0.55) 0%, rgba(8,11,16,0.75) 60%, #080b10 100%),
+      radial-gradient(ellipse at center, transparent 20%, rgba(8,11,16,0.5) 100%);
   }
 
   .login-card {
-    background: rgba(8,11,16,0.75);
-    border: 1px solid rgba(255,255,255,0.07);
+    position: relative;
+    z-index: 10;
+    background: rgba(8,11,16,0.6);
+    border: 1px solid rgba(255,255,255,0.09);
     border-radius: 10px;
     padding: 48px 44px;
     backdrop-filter: blur(18px);
     text-align: center;
-    max-width: 360px;
+    max-width: 380px;
+  }
+
+  .login-writeup {
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: #9ca3af;
+    margin: 0 0 32px;
   }
 
   .login-logo {
@@ -42,7 +71,7 @@ const styles = `
     color: #4a5568;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    margin-bottom: 36px;
+    margin-bottom: 18px;
   }
 
   .login-google-btn {
@@ -87,10 +116,24 @@ function Login() {
     <>
       <style>{styles}</style>
       <div className="login-root">
+        <video
+          className="login-video"
+          src="/videos/login-background.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
+        <div className="login-video-overlay" />
+
         <div className="login-card">
           <div className="login-logo">✈</div>
           <h1 className="login-title">Flightlog</h1>
           <p className="login-subtitle">Your personal aviation passport</p>
+          <p className="login-writeup">
+            Log every flight you've ever taken — routes, airlines, aircraft —
+            and watch your journeys come alive on the map.
+          </p>
           <button className="login-google-btn" onClick={login}>
             <GoogleIcon />
             Sign in with Google
