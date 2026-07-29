@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.services.auth_service import AuthService
 from app.schemas.auth import TokenResponse, UserResponse
+from app.api.deps import get_current_user
+from app.models.users import User
 from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 import os
@@ -51,9 +53,5 @@ async def callback(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/me", response_model=UserResponse)
-async def get_me(request: Request, db: Session = Depends(get_db)):
-    token = request.headers.get("Authorization", "").replace("Bearer ", "")
-    user = AuthService.get_current_user(db, token)
-    if not user:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    return user
+async def get_me(current_user: User = Depends(get_current_user)):
+    return current_user

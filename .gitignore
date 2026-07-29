@@ -25,3 +25,6 @@ Thumbs.db
 
 #Ignore vscode AI rules
 .github\instructions\codacy.instructions.md
+
+# Claude Code local session/plan files
+.claude/
