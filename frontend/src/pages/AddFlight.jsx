@@ -180,8 +180,7 @@ function AddFlight() {
   const [airlines, setAirlines] = useState([]);
   const [form, setForm] = useState({
     flight_number: "", airline: "", origin_iata: "", destination_iata: "",
-    departure_year: "", departure_month: "", departure_day: "",
-    departure_time: "", arrival_time: "", aircraft_type: "",
+    departure_year: "", aircraft_type: "",
     cabin_class: "Economy", duration_minutes: "", notes: "",
   });
 
@@ -208,11 +207,11 @@ function AddFlight() {
       const payload = {
         ...form,
         departure_year: parseInt(form.departure_year),
-        departure_month: form.departure_month ? parseInt(form.departure_month) : null,
-        departure_day: form.departure_day ? parseInt(form.departure_day) : null,
+        departure_month: null,
+        departure_day: null,
         duration_minutes: form.duration_minutes ? parseInt(form.duration_minutes) : null,
-        departure_time: form.departure_time || null,
-        arrival_time: form.arrival_time || null,
+        departure_time: null,
+        arrival_time: null,
         flight_number: form.flight_number || null,
         notes: form.notes || null,
       };
@@ -292,31 +291,11 @@ function AddFlight() {
           </div>
 
           {/* DATE */}
-          <div className="af-section-label">Date & Time</div>
-          <div className="af-grid-3">
-            <label className="af-label">
-              <span>Year *</span>
-              <input className="af-input" name="departure_year" value={form.departure_year} onChange={handleChange} placeholder="2024" type="number"/>
-            </label>
-            <label className="af-label">
-              <span>Month</span>
-              <input className="af-input" name="departure_month" value={form.departure_month} onChange={handleChange} placeholder="8" type="number" min="1" max="12"/>
-            </label>
-            <label className="af-label">
-              <span>Day</span>
-              <input className="af-input" name="departure_day" value={form.departure_day} onChange={handleChange} placeholder="15" type="number" min="1" max="31"/>
-            </label>
-          </div>
-          <div className="af-grid-2">
-            <label className="af-label">
-              <span>Departure</span>
-              <input className="af-input" name="departure_time" value={form.departure_time} onChange={handleChange} type="time"/>
-            </label>
-            <label className="af-label">
-              <span>Arrival</span>
-              <input className="af-input" name="arrival_time" value={form.arrival_time} onChange={handleChange} type="time"/>
-            </label>
-          </div>
+          <div className="af-section-label">Date</div>
+          <label className="af-label">
+            <span>Year *</span>
+            <input className="af-input" name="departure_year" value={form.departure_year} onChange={handleChange} placeholder="2024" type="number"/>
+          </label>
 
           {/* AIRCRAFT */}
           <div className="af-section-label">Aircraft</div>
