@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import ProtectedRoute from './components/ProtectedRoute'
-import FlightLog from './pages/FlightLog'
+import FlightLog from './pages/Flightlog'
 import AddFlight from './pages/AddFlight'
 import FlightMap from './pages/FlightMap'
 import Dashboard from './pages/Dashboard'
