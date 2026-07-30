@@ -1,13 +1,13 @@
 import { useAuth } from '../context/useAuth'
 
 const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@700;800&display=swap');
 
   .login-root {
     position: relative;
     min-height: 100vh;
     background: #080b10;
-    font-family: 'DM Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     color: #e8e8e8;
     display: flex;
     align-items: center;
@@ -86,7 +86,7 @@ const styles = `
     border-radius: 6px;
     padding: 12px 20px;
     cursor: pointer;
-    font-family: 'DM Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.8rem;
     font-weight: 500;
     letter-spacing: 0.02em;

@@ -49,7 +49,7 @@ function LiveTrackMap({ position }) {
       />
       <Marker position={[latitude, longitude]} icon={createPlaneIcon(heading || 0)}>
         <Popup>
-          <div style={{ fontFamily: "'DM Mono', monospace" }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace" }}>
             <div style={{ fontWeight: 500, color: '#e8e8e8' }}>{callsign}</div>
             {typeof altitude === 'number' && (
               <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: 2 }}>

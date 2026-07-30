@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { flightsApi } from '../api/flights'
+import { useAuth } from '../context/useAuth'
 
 const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@700;800&display=swap');
 
   .db-root {
     min-height: 100vh;
     background: #080b10;
-    font-family: 'DM Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     color: #e8e8e8;
     position: relative;
     overflow-x: hidden;
@@ -65,7 +66,27 @@ const styles = `
 
   .db-header {
     margin-bottom: 52px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
   }
+
+  .db-share-btn {
+    background: rgba(59,130,246,0.08);
+    border: 1px solid rgba(59,130,246,0.25);
+    color: #60a5fa;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 4px;
+  }
+
+  .db-share-btn:hover { background: rgba(59,130,246,0.16); }
 
   .db-title {
     font-family: 'Syne', sans-serif;
@@ -138,7 +159,7 @@ const styles = `
   }
 
   .db-stat-unit {
-    font-family: 'DM Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.65rem;
     color: #4a5568;
     letter-spacing: 0.15em;
@@ -322,7 +343,7 @@ const styles = `
     cursor: pointer;
     text-align: left;
     transition: border-color 0.2s, background 0.2s;
-    font-family: 'DM Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
   }
 
   .db-action-btn:hover {
@@ -360,7 +381,9 @@ const styles = `
 function Dashboard() {
   const [flights, setFlights] = useState([])
   const [loading, setLoading] = useState(true)
+  const [linkCopied, setLinkCopied] = useState(false)
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   useEffect(() => {
     flightsApi.getAll()
@@ -368,6 +391,13 @@ function Dashboard() {
       .catch(err => console.error(err))
       .finally(() => setLoading(false))
   }, [])
+
+  const copyShareLink = () => {
+    if (!user) return
+    navigator.clipboard.writeText(`${window.location.origin}/u/${user.id}`)
+    setLinkCopied(true)
+    setTimeout(() => setLinkCopied(false), 2000)
+  }
 
   // Compute stats
   const totalFlights = flights.length
@@ -478,8 +508,13 @@ function Dashboard() {
 
           {/* HEADER */}
           <header className="db-header">
-            <h1 className="db-title">Dashboard</h1>
-            <p className="db-subtitle">Your aviation passport at a glance</p>
+            <div>
+              <h1 className="db-title">Dashboard</h1>
+              <p className="db-subtitle">Your aviation passport at a glance</p>
+            </div>
+            <button className="db-share-btn" onClick={copyShareLink}>
+              {linkCopied ? 'Link copied!' : 'Copy share link'}
+            </button>
           </header>
 
           {loading ? (

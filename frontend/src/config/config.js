@@ -21,6 +21,16 @@ export const AUTH_API = {
   ME: `${API_BASE_URL}/auth/me`,
 }
 
+export const STATS_API = {
+  ME: `${API_BASE_URL}/stats/me`,
+}
+
+export const PUBLIC_API = {
+  PROFILE: (userId) => `${API_BASE_URL}/public/${userId}/profile`,
+  FLIGHTS: (userId) => `${API_BASE_URL}/public/${userId}/flights`,
+  STATS: (userId) => `${API_BASE_URL}/public/${userId}/stats`,
+}
+
 export const TRACKING_API = {
   STATUS: (flightNumber, date) => {
     const params = new URLSearchParams({ flight_number: flightNumber })

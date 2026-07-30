@@ -8,11 +8,13 @@ import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
 import AuthCallback from './pages/AuthCallback'
 import TrackFlight from './pages/TrackFlight'
+import Achievements from './pages/Achievements'
+import PublicMap from './pages/PublicMap'
 import { AuthProvider } from './context/AuthContext'
 
 function Layout() {
   const location = useLocation()
-  const hideNavbar = location.pathname === '/map' || location.pathname === '/login'
+  const hideNavbar = location.pathname === '/map' || location.pathname === '/login' || location.pathname.startsWith('/u/')
 
   return (
     <>
@@ -21,11 +23,13 @@ function Layout() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/u/:userId" element={<PublicMap />} />
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/my-flights" element={<ProtectedRoute><FlightLog /></ProtectedRoute>} />
           <Route path="/add-flight" element={<ProtectedRoute><AddFlight /></ProtectedRoute>} />
           <Route path="/map" element={<ProtectedRoute><FlightMap /></ProtectedRoute>} />
           <Route path="/track" element={<ProtectedRoute><TrackFlight /></ProtectedRoute>} />
+          <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
         </Routes>
       </div>
     </>
