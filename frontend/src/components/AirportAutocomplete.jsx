@@ -16,7 +16,7 @@ function AirportAutocomplete({ value, onSelect, placeholder, className }) {
   const handleInputChange = (e) => {
     const next = e.target.value.toUpperCase()
     setQuery(next)
-    onSelect('')
+    onSelect(null)
 
     clearTimeout(debounceRef.current)
     if (next.trim().length < 2) {
@@ -38,7 +38,7 @@ function AirportAutocomplete({ value, onSelect, placeholder, className }) {
 
   const selectAirport = (airport) => {
     setQuery(airport.iata_code)
-    onSelect(airport.iata_code)
+    onSelect(airport)
     setSuggestions([])
     setOpen(false)
   }
