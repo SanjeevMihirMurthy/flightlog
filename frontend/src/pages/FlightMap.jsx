@@ -44,11 +44,11 @@ const glowingMarker = L.divIcon({
 })
 
 const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@700;800&display=swap');
 
   .fm-root {
     position: fixed; inset: 0; background: #080b10;
-    font-family: 'DM Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
   }
 
   /* Leaflet popup override */
@@ -59,7 +59,7 @@ const styles = `
     box-shadow: 0 0 20px rgba(59,130,246,0.15) !important;
     backdrop-filter: blur(12px) !important;
     color: #e8e8e8 !important;
-    font-family: 'DM Mono', monospace !important;
+    font-family: 'JetBrains Mono', monospace !important;
     font-size: 0.78rem !important;
   }
   .leaflet-popup-tip { background: rgba(8,11,16,0.95) !important; }
@@ -84,14 +84,14 @@ const styles = `
   }
   .fm-btn-ghost {
     background: rgba(8,11,16,0.8); border: 1px solid rgba(255,255,255,0.1);
-    color: #6b7280; padding: 7px 16px; font-family: 'DM Mono', monospace;
+    color: #6b7280; padding: 7px 16px; font-family: 'JetBrains Mono', monospace;
     font-size: 0.75rem; letter-spacing: 0.06em; cursor: pointer;
     border-radius: 4px; backdrop-filter: blur(12px); transition: all 0.2s;
   }
   .fm-btn-ghost:hover { background: rgba(255,255,255,0.08); color: #d1d5db; border-color: rgba(255,255,255,0.2); }
   .fm-btn-primary {
     background: #2563eb; border: none; color: #fff; padding: 7px 16px;
-    font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.05em;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: 0.05em;
     cursor: pointer; border-radius: 4px; transition: background 0.2s;
   }
   .fm-btn-primary:hover { background: #1d4ed8; }
@@ -166,7 +166,7 @@ const styles = `
   .fm-loading {
     position: fixed; inset: 0; background: #080b10;
     display: flex; align-items: center; justify-content: center;
-    font-family: 'DM Mono', monospace; font-size: 0.8rem;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
     color: #374151; letter-spacing: 0.15em; text-transform: uppercase;
   }
   .fm-loading-dot {
@@ -327,7 +327,7 @@ function FlightMap() {
               <React.Fragment key={flight.id}>
                 <Marker position={[origin.latitude, origin.longitude]} icon={glowingMarker}>
                   <Popup>
-                    <div style={{ fontFamily: "'DM Mono', monospace" }}>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                       <div style={{ fontSize: '0.65rem', color: '#4a5568', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 4 }}>Departure</div>
                       <div style={{ fontWeight: 500, color: '#e8e8e8' }}>{origin.iata_code}</div>
                       <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: 2 }}>{origin.name}</div>
@@ -340,7 +340,7 @@ function FlightMap() {
 
                 <Marker position={[destination.latitude, destination.longitude]} icon={airlineIcon}>
                   <Popup>
-                    <div style={{ fontFamily: "'DM Mono', monospace", textAlign: 'center' }}>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", textAlign: 'center' }}>
                       <img src={`https://images.kiwi.com/airlines/64/${airlineCode}.png`} style={{ height: 18, marginBottom: 6 }} alt="" />
                       <div style={{ fontSize: '0.65rem', color: '#4a5568', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 2 }}>Arrival · {flight.airline}</div>
                       <div style={{ fontWeight: 500, color: '#e8e8e8' }}>{destination.iata_code}</div>

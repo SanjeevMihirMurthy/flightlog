@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { flightsApi } from '../api/flights'
 
 const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@700;800&display=swap');
 
   .fl-root {
     min-height: 100vh;
     background: #080b10;
-    font-family: 'DM Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     color: #e8e8e8;
     position: relative;
     overflow-x: hidden;
@@ -94,7 +94,7 @@ const styles = `
     border: 1px solid rgba(255,255,255,0.1);
     color: #6b7280;
     padding: 8px 18px;
-    font-family: 'DM Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.78rem;
     letter-spacing: 0.06em;
     cursor: pointer;
@@ -113,7 +113,7 @@ const styles = `
     border: none;
     color: #fff;
     padding: 9px 20px;
-    font-family: 'DM Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.78rem;
     letter-spacing: 0.05em;
     cursor: pointer;

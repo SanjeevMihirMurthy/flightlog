@@ -18,6 +18,7 @@ function Navbar() {
     { label: 'My Flights', path: '/my-flights' },
     { label: 'Map', path: '/map' },
     { label: 'Track', path: '/track' },
+    { label: 'Achievements', path: '/achievements' },
   ]
 
   return (
@@ -67,7 +68,7 @@ function Navbar() {
               borderRadius: '4px',
               padding: '0.4rem 1rem',
               cursor: 'pointer',
-              fontFamily: "'DM Mono', monospace",
+              fontFamily: "'JetBrains Mono', monospace",
               fontSize: '0.72rem',
               fontWeight: '400',
               letterSpacing: '0.08em',
@@ -91,7 +92,7 @@ function Navbar() {
             borderRadius: '4px',
             padding: '0.45rem 1.1rem',
             cursor: 'pointer',
-            fontFamily: "'DM Mono', monospace",
+            fontFamily: "'JetBrains Mono', monospace",
             fontSize: '0.72rem',
             letterSpacing: '0.08em',
             textTransform: 'uppercase',
@@ -132,7 +133,7 @@ function Navbar() {
                 color: '#4a5568',
                 border: 'none',
                 cursor: 'pointer',
-                fontFamily: "'DM Mono', monospace",
+                fontFamily: "'JetBrains Mono', monospace",
                 fontSize: '0.68rem',
                 letterSpacing: '0.08em',
                 textTransform: 'uppercase',

@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { flightsApi, airportsApi, airlinesApi } from "../api/flights";
+import { flightsApi, airlinesApi } from "../api/flights";
+import AirportAutocomplete from "../components/AirportAutocomplete";
 
 const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@700;800&display=swap');
 
   .af-root {
     display: flex; min-height: 100vh; background: #080b10;
-    font-family: 'DM Mono', monospace; color: #e8e8e8;
+    font-family: 'JetBrains Mono', monospace; color: #e8e8e8;
   }
 
   /* ── LEFT PANEL ── */
@@ -54,7 +55,7 @@ const styles = `
     background: rgba(255,255,255,0.03);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 4px; color: #e8e8e8;
-    font-family: 'DM Mono', monospace; font-size: 0.82rem;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
     outline: none; transition: border-color 0.2s, background 0.2s;
     box-sizing: border-box;
   }
@@ -62,9 +63,38 @@ const styles = `
     border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.04);
   }
   .af-input::placeholder { color: #1f2937; }
-  .af-input:disabled { opacity: 0.35; cursor: not-allowed; }
+  .af-input:disabled, .af-select:disabled { opacity: 0.35; cursor: not-allowed; }
+  .af-input.invalid { border-color: rgba(239,68,68,0.5); }
   .af-select option { background: #0d1117; }
   .af-textarea { height: 80px; resize: vertical; }
+
+  .af-field-error {
+    font-size: 0.66rem; color: #f87171; letter-spacing: 0.04em;
+    margin-top: 6px; text-transform: none;
+  }
+
+  /* Airport autocomplete */
+  .aa-wrap { position: relative; }
+  .aa-dropdown {
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 20;
+    background: #0d1117; border: 1px solid rgba(59,130,246,0.25);
+    border-radius: 4px; max-height: 220px; overflow-y: auto;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .aa-option {
+    padding: 9px 12px; cursor: pointer; display: flex; align-items: baseline; gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .aa-option.highlighted, .aa-option:hover { background: rgba(59,130,246,0.12); }
+  .aa-option-code { color: #60a5fa; font-weight: 700; font-size: 0.78rem; flex-shrink: 0; }
+  .aa-option-name { color: #9ca3af; font-size: 0.74rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .af-route-preview {
+    display: flex; align-items: center; gap: 10px;
+    margin: -4px 0 20px; font-size: 0.8rem; color: #60a5fa;
+    letter-spacing: 0.05em;
+  }
+  .af-route-preview-arrow { color: #3b82f6; }
 
   .af-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .af-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
@@ -82,7 +112,7 @@ const styles = `
     padding: 9px 12px; background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.08); border-right: none;
     border-radius: 4px 0 0 4px; color: #6b7280; font-size: 0.82rem;
-    font-family: 'DM Mono', monospace; min-width: 44px; text-align: center;
+    font-family: 'JetBrains Mono', monospace; min-width: 44px; text-align: center;
     display: flex; align-items: center; justify-content: center;
   }
   .af-fn-input {
@@ -93,14 +123,14 @@ const styles = `
   .af-actions { display: flex; gap: 10px; margin-top: 32px; }
   .af-btn-primary {
     background: #2563eb; color: #fff; border: none; border-radius: 4px;
-    padding: 10px 24px; font-family: 'DM Mono', monospace; font-size: 0.82rem;
+    padding: 10px 24px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
     letter-spacing: 0.05em; cursor: pointer; transition: background 0.2s;
   }
   .af-btn-primary:hover:not(:disabled) { background: #1d4ed8; }
   .af-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
   .af-btn-ghost {
     background: transparent; color: #374151; border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 4px; padding: 10px 20px; font-family: 'DM Mono', monospace;
+    border-radius: 4px; padding: 10px 20px; font-family: 'JetBrains Mono', monospace;
     font-size: 0.82rem; cursor: pointer; transition: all 0.2s;
   }
   .af-btn-ghost:hover { color: #6b7280; border-color: rgba(255,255,255,0.15); }
@@ -172,24 +202,29 @@ const MAP_SVG = (
   </svg>
 )
 
+const REQUIRED_FIELDS = ["airline", "origin_iata", "destination_iata", "departure_year"];
+
 function AddFlight() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [attempted, setAttempted] = useState(false);
   const [selectedAirlineCode, setSelectedAirlineCode] = useState("");
   const [airlines, setAirlines] = useState([]);
+  const [airlinesLoading, setAirlinesLoading] = useState(true);
   const [form, setForm] = useState({
     flight_number: "", airline: "", origin_iata: "", destination_iata: "",
     departure_year: "", aircraft_type: "",
     cabin_class: "Economy", duration_minutes: "", notes: "",
   });
 
+  const isMissing = (field) => attempted && !form[field];
+
   useEffect(() => {
-    setLoading(true);
     airlinesApi.getAll()
       .then(res => setAirlines(res.data || []))
       .catch(() => setError("Failed to load airlines"))
-      .finally(() => setLoading(false));
+      .finally(() => setAirlinesLoading(false));
   }, []);
 
   const handleAirlineChange = (e) => {
@@ -202,6 +237,13 @@ function AddFlight() {
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async () => {
+    setAttempted(true);
+    const missing = REQUIRED_FIELDS.filter(field => !form[field]);
+    if (missing.length > 0) {
+      setError("Please fill in all required fields.");
+      return;
+    }
+
     setLoading(true); setError(null);
     try {
       const payload = {
@@ -218,7 +260,7 @@ function AddFlight() {
       await flightsApi.create(payload);
       navigate("/");
     } catch (err) {
-      setError("Failed to add flight. Please check your inputs.");
+      setError(err.response?.data?.detail || "Failed to add flight. Please check your inputs.");
     } finally {
       setLoading(false);
     }
@@ -244,8 +286,12 @@ function AddFlight() {
           <label className="af-label">
             <span>Airline *</span>
             <div className="af-airline-row">
-              <select className="af-select" name="airline" value={form.airline} onChange={handleAirlineChange} style={{ flex: 1 }}>
-                <option value="">Select airline</option>
+              <select
+                className={`af-select ${isMissing("airline") ? "invalid" : ""}`}
+                name="airline" value={form.airline} onChange={handleAirlineChange} style={{ flex: 1 }}
+                disabled={airlinesLoading}
+              >
+                <option value="">{airlinesLoading ? "Loading airlines..." : "Select airline"}</option>
                 {airlines.map(a => (
                   <option key={a.iata_code} value={a.name}>{a.name} ({a.iata_code})</option>
                 ))}
@@ -259,6 +305,7 @@ function AddFlight() {
                 />
               )}
             </div>
+            {isMissing("airline") && <div className="af-field-error">Please select an airline</div>}
           </label>
 
           {/* FLIGHT NUMBER */}
@@ -281,20 +328,46 @@ function AddFlight() {
           <div className="af-section-label">Route</div>
           <div className="af-grid-2">
             <label className="af-label">
-              <span>Origin IATA *</span>
-              <input className="af-input" name="origin_iata" value={form.origin_iata} onChange={handleChange} placeholder="MAA" maxLength={3}/>
+              <span>Origin *</span>
+              <AirportAutocomplete
+                className={`af-input ${isMissing("origin_iata") ? "invalid" : ""}`}
+                value={form.origin_iata}
+                onSelect={code => setForm({ ...form, origin_iata: code })}
+                placeholder="MAA or Chennai"
+              />
             </label>
             <label className="af-label">
-              <span>Destination IATA *</span>
-              <input className="af-input" name="destination_iata" value={form.destination_iata} onChange={handleChange} placeholder="DXB" maxLength={3}/>
+              <span>Destination *</span>
+              <AirportAutocomplete
+                className={`af-input ${isMissing("destination_iata") ? "invalid" : ""}`}
+                value={form.destination_iata}
+                onSelect={code => setForm({ ...form, destination_iata: code })}
+                placeholder="DXB or Dubai"
+              />
             </label>
           </div>
+          {(isMissing("origin_iata") || isMissing("destination_iata")) && (
+            <div className="af-field-error" style={{ marginTop: "-8px", marginBottom: "16px" }}>
+              Please select both an origin and destination from the dropdown
+            </div>
+          )}
+          {form.origin_iata && form.destination_iata && (
+            <div className="af-route-preview">
+              <span>{form.origin_iata}</span>
+              <span className="af-route-preview-arrow">→</span>
+              <span>{form.destination_iata}</span>
+            </div>
+          )}
 
           {/* DATE */}
           <div className="af-section-label">Date</div>
           <label className="af-label">
             <span>Year *</span>
-            <input className="af-input" name="departure_year" value={form.departure_year} onChange={handleChange} placeholder="2024" type="number"/>
+            <input
+              className={`af-input ${isMissing("departure_year") ? "invalid" : ""}`}
+              name="departure_year" value={form.departure_year} onChange={handleChange} placeholder="2024" type="number"
+            />
+            {isMissing("departure_year") && <div className="af-field-error">Please enter a year</div>}
           </label>
 
           {/* AIRCRAFT */}

@@ -5,12 +5,12 @@ import LiveTrackMap from '../components/LiveTrackMap'
 const LIVE_POLL_INTERVAL_MS = 20000
 
 const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@700;800&display=swap');
 
   .tf-root {
     min-height: 100vh;
     background: #080b10;
-    font-family: 'DM Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     color: #e8e8e8;
   }
 
@@ -51,7 +51,7 @@ const styles = `
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 6px;
     color: #e8e8e8;
-    font-family: 'DM Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.85rem;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -67,7 +67,7 @@ const styles = `
     border-radius: 6px;
     padding: 11px 24px;
     cursor: pointer;
-    font-family: 'DM Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 0.78rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
