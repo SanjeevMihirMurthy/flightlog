@@ -614,7 +614,7 @@ function Dashboard() {
               </div>
 
               {/* QUICK ACTIONS */}
-              <div className="db-actions-grid" style={{ marginTop: '3px' }}>
+              {/* <div className="db-actions-grid" style={{ marginTop: '3px' }}>
                 <button className="db-action-btn" onClick={() => navigate('/add-flight')}>
                   <span className="db-action-icon">✈</span>
                   <span className="db-action-label">Log a flight</span>
@@ -630,7 +630,7 @@ function Dashboard() {
                   <span className="db-action-label">All flights</span>
                   <span className="db-action-desc">Browse your complete flight history</span>
                 </button>
-              </div>
+              </div> */}
             </>
           )}
         </div>

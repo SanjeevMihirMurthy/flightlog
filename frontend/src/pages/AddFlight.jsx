@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { flightsApi, airlinesApi } from "../api/flights";
 import AirportAutocomplete from "../components/AirportAutocomplete";
+import WikiThumbnail from "../components/WikiThumbnail";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@700;800&display=swap');
@@ -172,6 +173,35 @@ const styles = `
   .af-airline-badge-name { font-size: 0.88rem; font-weight: 500; color: #e8e8e8; margin-top: 2px; }
 
   @keyframes af-fade-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
+  /* Itinerary preview */
+  .af-itinerary {
+    position: absolute; top: 3rem; left: 3rem; z-index: 2;
+    display: flex; flex-direction: column; gap: 12px; width: 240px;
+  }
+  .af-itinerary-card {
+    background: rgba(8,11,16,0.7); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.09); border-radius: 8px;
+    overflow: hidden; animation: af-fade-in 0.3s ease;
+  }
+  .af-itinerary-photo {
+    width: 100%; height: 110px; object-fit: cover; display: block;
+    background: rgba(255,255,255,0.03);
+  }
+  .wiki-thumb-placeholder {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; color: rgba(255,255,255,0.25); font-size: 0.62rem;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .wiki-thumb-icon { font-size: 1.2rem; }
+  .af-itinerary-card-label { padding: 10px 12px; }
+  .af-itinerary-card-code {
+    font-size: 0.6rem; color: #3b82f6; letter-spacing: 0.12em;
+    text-transform: uppercase; margin-bottom: 3px;
+  }
+  .af-itinerary-card-name {
+    font-size: 0.74rem; color: #e8e8e8; line-height: 1.3;
+  }
 `
 
 const MAP_SVG = (
@@ -212,6 +242,8 @@ function AddFlight() {
   const [selectedAirlineCode, setSelectedAirlineCode] = useState("");
   const [airlines, setAirlines] = useState([]);
   const [airlinesLoading, setAirlinesLoading] = useState(true);
+  const [originAirport, setOriginAirport] = useState(null);
+  const [destinationAirport, setDestinationAirport] = useState(null);
   const [form, setForm] = useState({
     flight_number: "", airline: "", origin_iata: "", destination_iata: "",
     departure_year: "", aircraft_type: "",
@@ -332,7 +364,7 @@ function AddFlight() {
               <AirportAutocomplete
                 className={`af-input ${isMissing("origin_iata") ? "invalid" : ""}`}
                 value={form.origin_iata}
-                onSelect={code => setForm({ ...form, origin_iata: code })}
+                onSelect={airport => { setForm({ ...form, origin_iata: airport?.iata_code || "" }); setOriginAirport(airport) }}
                 placeholder="MAA or Chennai"
               />
             </label>
@@ -341,7 +373,7 @@ function AddFlight() {
               <AirportAutocomplete
                 className={`af-input ${isMissing("destination_iata") ? "invalid" : ""}`}
                 value={form.destination_iata}
-                onSelect={code => setForm({ ...form, destination_iata: code })}
+                onSelect={airport => { setForm({ ...form, destination_iata: airport?.iata_code || "" }); setDestinationAirport(airport) }}
                 placeholder="DXB or Dubai"
               />
             </label>
@@ -425,6 +457,38 @@ function AddFlight() {
                 <div className="af-airline-badge-caption">Selected airline</div>
                 <div className="af-airline-badge-name">{form.airline}</div>
               </div>
+            </div>
+          )}
+
+          {(originAirport || destinationAirport || form.aircraft_type.trim().length >= 3) && (
+            <div className="af-itinerary">
+              {originAirport && (
+                <div className="af-itinerary-card">
+                  <WikiThumbnail className="af-itinerary-photo" query={originAirport.name} alt={originAirport.name} />
+                  <div className="af-itinerary-card-label">
+                    <div className="af-itinerary-card-code">{originAirport.iata_code} · Origin</div>
+                    <div className="af-itinerary-card-name">{originAirport.name}</div>
+                  </div>
+                </div>
+              )}
+              {destinationAirport && (
+                <div className="af-itinerary-card">
+                  <WikiThumbnail className="af-itinerary-photo" query={destinationAirport.name} alt={destinationAirport.name} />
+                  <div className="af-itinerary-card-label">
+                    <div className="af-itinerary-card-code">{destinationAirport.iata_code} · Destination</div>
+                    <div className="af-itinerary-card-name">{destinationAirport.name}</div>
+                  </div>
+                </div>
+              )}
+              {form.aircraft_type.trim().length >= 3 && (
+                <div className="af-itinerary-card">
+                  <WikiThumbnail className="af-itinerary-photo" query={form.aircraft_type} alt={form.aircraft_type} />
+                  <div className="af-itinerary-card-label">
+                    <div className="af-itinerary-card-code">Aircraft</div>
+                    <div className="af-itinerary-card-name">{form.aircraft_type}</div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
