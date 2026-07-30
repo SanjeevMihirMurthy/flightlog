@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `http://${window.location.hostname}:8000`;
 
 export const FLIGHT_API = {
   LIST: `${API_BASE_URL}/flights/all-flights`,
