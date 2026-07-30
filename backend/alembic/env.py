@@ -1,19 +1,13 @@
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool, create_engine
 from alembic import context
-from urllib.parse import quote_plus
 from dotenv import load_dotenv
+from app.db.url import get_database_url
 import os
 
 load_dotenv()
 
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = quote_plus(os.getenv("DB_PASSWORD"))
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
-DB_NAME = os.getenv("DB_NAME")
-
-DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+DATABASE_URL = get_database_url()
 
 config = context.config
 config.set_main_option("sqlalchemy.url", DATABASE_URL)

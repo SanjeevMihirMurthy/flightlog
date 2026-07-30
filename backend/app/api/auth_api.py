@@ -23,11 +23,11 @@ oauth.register(
     client_kwargs={'scope': 'openid email profile'}
 )
 
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+FRONTEND_PORT = os.getenv("FRONTEND_PORT", "5173")
 
 @router.get("/login")
 async def login(request: Request):
-    redirect_uri = os.getenv("GOOGLE_REDIRECT_URI")
+    redirect_uri = str(request.base_url) + "auth/callback"
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 @router.get("/callback")
@@ -47,7 +47,8 @@ async def callback(request: Request, db: Session = Depends(get_db)):
         )
 
         access_token = AuthService.create_access_token(user.id)
-        return RedirectResponse(url=f"{FRONTEND_URL}/auth/callback?token={access_token}")
+        frontend_url = os.getenv("FRONTEND_URL") or f"http://{request.url.hostname}:{FRONTEND_PORT}"
+        return RedirectResponse(url=f"{frontend_url}/auth/callback?token={access_token}")
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
