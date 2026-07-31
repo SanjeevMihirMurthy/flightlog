@@ -32,11 +32,13 @@ async def login(request: Request):
 
 @router.get("/callback")
 async def callback(request: Request, db: Session = Depends(get_db)):
+    frontend_url = os.getenv("FRONTEND_URL") or f"http://{request.url.hostname}:{FRONTEND_PORT}"
+
     try:
         token = await oauth.google.authorize_access_token(request)
         userinfo = token.get("userinfo")
         if not userinfo:
-            raise HTTPException(status_code=400, detail="Failed to get user info")
+            return RedirectResponse(url=f"{frontend_url}/login?error=oauth_failed")
 
         user = AuthService.get_or_create_user(
             db=db,
@@ -47,11 +49,10 @@ async def callback(request: Request, db: Session = Depends(get_db)):
         )
 
         access_token = AuthService.create_access_token(user.id)
-        frontend_url = os.getenv("FRONTEND_URL") or f"http://{request.url.hostname}:{FRONTEND_PORT}"
         return RedirectResponse(url=f"{frontend_url}/auth/callback?token={access_token}")
 
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except Exception:
+        return RedirectResponse(url=f"{frontend_url}/login?error=oauth_failed")
 
 @router.get("/me", response_model=UserResponse)
 async def get_me(current_user: User = Depends(get_current_user)):

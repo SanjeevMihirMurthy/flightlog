@@ -1,3 +1,4 @@
+import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
 
 const styles = `
@@ -96,6 +97,18 @@ const styles = `
   .login-google-btn:hover {
     background: #e5e7eb;
   }
+
+  .login-error {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.25);
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    color: #fca5a5;
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+  }
 `
 
 function GoogleIcon() {
@@ -111,6 +124,8 @@ function GoogleIcon() {
 
 function Login() {
   const { login } = useAuth()
+  const [searchParams] = useSearchParams()
+  const hasError = searchParams.get('error') === 'oauth_failed'
 
   return (
     <>
@@ -134,6 +149,13 @@ function Login() {
             Log every flight you've ever taken — routes, airlines, aircraft —
             and watch your journeys come alive on the map.
           </p>
+          {hasError && (
+            <div className="login-error">
+              Sign-in didn't go through — this can happen if the link was opened
+              in an app's built-in browser (e.g. WhatsApp/Instagram). Try again,
+              or open this page in Chrome/Safari directly.
+            </div>
+          )}
           <button className="login-google-btn" onClick={login}>
             <GoogleIcon />
             Sign in with Google
