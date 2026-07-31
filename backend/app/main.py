@@ -37,9 +37,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+IS_RAILWAY = os.getenv("RAILWAY_ENVIRONMENT_NAME") is not None
+
 app.add_middleware(
     SessionMiddleware,
-    secret_key=os.getenv("SECRET_KEY", "your-secret-key")
+    secret_key=os.getenv("SECRET_KEY", "your-secret-key"),
+    same_site="lax",
+    https_only=IS_RAILWAY,
 )
 
 @app.get("/")
