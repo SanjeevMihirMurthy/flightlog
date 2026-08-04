@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { flightsApi, airlinesApi } from "../api/flights";
+import { useNavigate, useParams } from "react-router-dom";
+import { flightsApi, airlinesApi, airportsApi } from "../api/flights";
 import AirportAutocomplete from "../components/AirportAutocomplete";
 import BoardingPassPreview from "../components/BoardingPassPreview";
 import MapBackdropPanel from "../components/MapBackdropPanel";
@@ -17,7 +17,6 @@ const styles = `
     display: flex; width: 100%; max-width: 1320px;
   }
 
-  /* ── LEFT PANEL ── */
   .af-panel {
     flex: 0 0 500px; padding: 44px 40px; overflow-y: auto;
     background: rgba(8,11,16,0.97);
@@ -42,51 +41,6 @@ const styles = `
     border-radius: 4px; padding: 10px 14px; margin-bottom: 20px;
     color: #fca5a5; font-size: 0.78rem; letter-spacing: 0.04em;
   }
-
-  .af-chooser { display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px; }
-  .af-chooser-card {
-    display: flex; flex-direction: column; align-items: flex-start; gap: 5px;
-    width: 100%; text-align: left; box-sizing: border-box;
-    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 8px; padding: 18px 20px; cursor: pointer; transition: all 0.2s;
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .af-chooser-card:hover { background: rgba(59,130,246,0.06); border-color: rgba(59,130,246,0.35); }
-  .af-chooser-title { font-size: 0.9rem; color: #e8e8e8; font-weight: 500; letter-spacing: 0.02em; }
-  .af-chooser-desc { font-size: 0.72rem; color: #6b7280; line-height: 1.4; }
-
-  .af-change-method {
-    background: none; border: none; padding: 0; margin-bottom: 24px;
-    color: #60a5fa; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
-    letter-spacing: 0.05em; cursor: pointer; display: inline-block;
-  }
-  .af-change-method:hover { text-decoration: underline; }
-
-  .af-dropzone {
-    border: 1px dashed rgba(255,255,255,0.15); border-radius: 6px; padding: 32px 16px;
-    text-align: center; color: #4b5563; font-size: 0.78rem; cursor: pointer;
-    transition: border-color 0.2s, background 0.2s; display: block;
-  }
-  .af-dropzone:hover { border-color: rgba(59,130,246,0.35); background: rgba(59,130,246,0.03); }
-  .af-dropzone.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
-  .af-dropzone input { display: none; }
-  .af-dropzone-filename { color: #9ca3af; margin-top: 10px; font-size: 0.74rem; }
-
-  .af-spinner {
-    display: inline-block; width: 13px; height: 13px; margin-right: 8px;
-    border-radius: 50%; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff;
-    animation: af-spin 0.7s linear infinite; vertical-align: middle;
-  }
-  @keyframes af-spin { to { transform: rotate(360deg); } }
-  .af-help-text { font-size: 0.68rem; color: #374151; line-height: 1.7; margin: 14px 0 24px; }
-  .af-link { color: #60a5fa; text-decoration: none; }
-  .af-link:hover { text-decoration: underline; }
-  .af-result-box {
-    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 6px; padding: 14px 16px; font-size: 0.76rem; color: #9ca3af;
-    line-height: 1.7; margin-top: 20px;
-  }
-  .af-result-row-error { color: #fca5a5; font-size: 0.7rem; margin-top: 4px; }
 
   .af-section-label {
     font-size: 0.65rem; color: #1e3a5f; letter-spacing: 0.2em;
@@ -124,7 +78,6 @@ const styles = `
     margin-top: 6px; text-transform: none;
   }
 
-  /* Airport autocomplete */
   .aa-wrap { position: relative; }
   .aa-dropdown {
     position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 20;
@@ -167,16 +120,13 @@ const styles = `
   .af-route-chip:hover { background: rgba(59,130,246,0.16); border-color: rgba(59,130,246,0.4); }
 
   .af-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .af-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 
-  /* Airline select row */
   .af-airline-row { display: flex; align-items: center; gap: 10px; }
   .af-airline-logo {
     width: 36px; height: 36px; object-fit: contain;
     background: #fff; border-radius: 4px; padding: 3px; flex-shrink: 0;
   }
 
-  /* Flight number prefix */
   .af-fn-wrap { display: flex; align-items: stretch; }
   .af-fn-prefix {
     padding: 9px 12px; background: rgba(255,255,255,0.05);
@@ -189,7 +139,6 @@ const styles = `
     flex: 1; border-radius: 0 4px 4px 0 !important;
   }
 
-  /* Actions */
   .af-actions { display: flex; gap: 10px; margin-top: 32px; }
   .af-btn-primary {
     background: #2563eb; color: #fff; border: none; border-radius: 4px;
@@ -210,13 +159,14 @@ const styles = `
     .af-panel { flex: none; width: 100%; box-sizing: border-box; padding: 32px 24px; }
     .af-grid-2 { grid-template-columns: 1fr; }
   }
-`
+`;
 
-const MAX_SCAN_BYTES = 10 * 1024 * 1024;
-
-function AddFlight() {
+function EditFlight() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const { id } = useParams();
+  const [pageLoading, setPageLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [attempted, setAttempted] = useState(false);
   const [selectedAirlineCode, setSelectedAirlineCode] = useState("");
@@ -225,17 +175,10 @@ function AddFlight() {
   const [originAirport, setOriginAirport] = useState(null);
   const [destinationAirport, setDestinationAirport] = useState(null);
   const [routeAirlines, setRouteAirlines] = useState([]);
-  const [activeTab, setActiveTab] = useState(null);
-  const [scanFile, setScanFile] = useState(null);
-  const [scanLoading, setScanLoading] = useState(false);
-  const [scanError, setScanError] = useState(null);
-  const [csvFile, setCsvFile] = useState(null);
-  const [csvLoading, setCsvLoading] = useState(false);
-  const [csvError, setCsvError] = useState(null);
-  const [csvResult, setCsvResult] = useState(null);
   const [form, setForm] = useState(INITIAL_FORM);
 
   const formErrors = attempted ? getFormErrors(form) : {};
+  const resolvedAirlineCode = selectedAirlineCode || (airlines.find(a => a.name === form.airline)?.iata_code || "");
 
   useEffect(() => {
     airlinesApi.getAll()
@@ -243,6 +186,32 @@ function AddFlight() {
       .catch(() => setError("Failed to load airlines"))
       .finally(() => setAirlinesLoading(false));
   }, []);
+
+  useEffect(() => {
+    flightsApi.getOne(id)
+      .then(({ data: flight }) => {
+        setForm({
+          flight_number: flight.flight_number || "",
+          airline: flight.airline || "",
+          origin_iata: flight.origin_iata || "",
+          destination_iata: flight.destination_iata || "",
+          departure_year: flight.departure_year ? String(flight.departure_year) : "",
+          aircraft_type: flight.aircraft_type || "",
+          cabin_class: flight.cabin_class || "Economy",
+          duration_minutes: flight.duration_minutes ? String(flight.duration_minutes) : "",
+          notes: flight.notes || "",
+        });
+        Promise.all([
+          airportsApi.getOne(flight.origin_iata).catch(() => null),
+          airportsApi.getOne(flight.destination_iata).catch(() => null),
+        ]).then(([origin, destination]) => {
+          if (origin) setOriginAirport(origin.data);
+          if (destination) setDestinationAirport(destination.data);
+        });
+      })
+      .catch(() => setNotFound(true))
+      .finally(() => setPageLoading(false));
+  }, [id]);
 
   useEffect(() => {
     if (!form.origin_iata || !form.destination_iata) return;
@@ -267,85 +236,6 @@ function AddFlight() {
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleScanFileChange = (e) => {
-    const file = e.target.files?.[0] || null;
-    setScanError(null);
-    if (!file) { setScanFile(null); return; }
-
-    const isImage = file.type.startsWith("image/");
-    const isPdf = file.type === "application/pdf";
-    if (!isImage && !isPdf) {
-      setScanFile(null);
-      setScanError("Please choose an image or PDF file.");
-      return;
-    }
-    if (file.size > MAX_SCAN_BYTES) {
-      setScanFile(null);
-      setScanError("File is too large (max 10MB).");
-      return;
-    }
-    setScanFile(file);
-  };
-
-  const handleExtract = async () => {
-    if (!scanFile) return;
-    setScanLoading(true); setScanError(null);
-    try {
-      const { data } = await flightsApi.extractFromImage(scanFile);
-      const fieldsFound = [
-        data.flight_number, data.airline_name, data.origin, data.destination,
-        data.departure_year, data.aircraft_type, data.cabin_class,
-      ].filter(Boolean).length;
-
-      if (fieldsFound === 0) {
-        setScanError("Couldn't find any flight details in that file — try a clearer photo or fill in manually.");
-        return;
-      }
-
-      setForm(prev => ({
-        ...prev,
-        flight_number: data.flight_number || prev.flight_number,
-        airline: data.airline_name || prev.airline,
-        origin_iata: data.origin?.iata_code || prev.origin_iata,
-        destination_iata: data.destination?.iata_code || prev.destination_iata,
-        departure_year: data.departure_year ? String(data.departure_year) : prev.departure_year,
-        aircraft_type: data.aircraft_type || prev.aircraft_type,
-        cabin_class: data.cabin_class || prev.cabin_class,
-      }));
-      if (data.origin) setOriginAirport(data.origin);
-      if (data.destination) setDestinationAirport(data.destination);
-      if (data.airline_iata) setSelectedAirlineCode(data.airline_iata);
-      setActiveTab("manual");
-    } catch (err) {
-      setScanError(err.response?.data?.detail || "Couldn't read that image — try manual entry.");
-    } finally {
-      setScanLoading(false);
-    }
-  };
-
-  const handleImportCsv = async () => {
-    if (!csvFile) return;
-    setCsvLoading(true); setCsvError(null); setCsvResult(null);
-    try {
-      const { data } = await flightsApi.importCsv(csvFile);
-      setCsvResult(data);
-    } catch (err) {
-      setCsvError(err.response?.data?.detail || "Failed to import CSV.");
-    } finally {
-      setCsvLoading(false);
-    }
-  };
-
-  const handleChangeMethod = () => {
-    setScanFile(null); setScanError(null); setScanLoading(false);
-    setCsvFile(null); setCsvError(null); setCsvResult(null); setCsvLoading(false);
-    setForm(INITIAL_FORM);
-    setOriginAirport(null); setDestinationAirport(null);
-    setSelectedAirlineCode(""); setRouteAirlines([]);
-    setAttempted(false); setError(null);
-    setActiveTab(null);
-  };
-
   const handleSubmit = async () => {
     setAttempted(true);
     if (Object.keys(getFormErrors(form)).length > 0) {
@@ -353,7 +243,7 @@ function AddFlight() {
       return;
     }
 
-    setLoading(true); setError(null);
+    setSaving(true); setError(null);
     try {
       const payload = {
         ...form,
@@ -366,14 +256,41 @@ function AddFlight() {
         flight_number: form.flight_number || null,
         notes: form.notes || null,
       };
-      await flightsApi.create(payload);
-      navigate("/");
+      await flightsApi.update(id, payload);
+      navigate("/my-flights");
     } catch (err) {
-      setError(err.response?.data?.detail || "Failed to add flight. Please check your inputs.");
+      setError(err.response?.data?.detail || "Failed to update flight. Please check your inputs.");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
+
+  if (pageLoading) {
+    return (
+      <>
+        <style>{styles}</style>
+        <div className="af-root">
+          <div className="af-panel">
+            <p className="af-subtitle">Loading flight...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (notFound) {
+    return (
+      <>
+        <style>{styles}</style>
+        <div className="af-root">
+          <div className="af-panel">
+            <button className="af-back" onClick={() => navigate("/my-flights")}>← Back</button>
+            <div className="af-error">Flight not found.</div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -381,96 +298,13 @@ function AddFlight() {
       <div className="af-root">
         <div className="af-content">
 
-        {/* ── LEFT FORM PANEL ── */}
         <div className="af-panel">
-          <button className="af-back" onClick={() => navigate("/")}>
+          <button className="af-back" onClick={() => navigate("/my-flights")}>
             ← Back
           </button>
-          <h1 className="af-title">Log a Flight</h1>
-          <p className="af-subtitle">Add a flight to your aviation passport</p>
+          <h1 className="af-title">Edit Flight</h1>
+          <p className="af-subtitle">Update the details of this flight</p>
 
-          {activeTab === null && (
-            <div className="af-chooser">
-              <button className="af-chooser-card" onClick={() => setActiveTab("manual")}>
-                <span className="af-chooser-title">Manual Entry</span>
-                <span className="af-chooser-desc">Fill in the details yourself</span>
-              </button>
-              <button className="af-chooser-card" onClick={() => setActiveTab("scan")}>
-                <span className="af-chooser-title">Scan Boarding Pass</span>
-                <span className="af-chooser-desc">Upload a photo or PDF — we'll pre-fill the form for you to review</span>
-              </button>
-              <button className="af-chooser-card" onClick={() => setActiveTab("csv")}>
-                <span className="af-chooser-title">Import CSV</span>
-                <span className="af-chooser-desc">Bulk-add flights from a spreadsheet</span>
-              </button>
-            </div>
-          )}
-
-          {activeTab !== null && (
-            <button className="af-change-method" onClick={handleChangeMethod}>← Choose a different method</button>
-          )}
-
-          {activeTab === "scan" && (
-            <>
-              <label className={`af-dropzone ${scanLoading ? "disabled" : ""}`} htmlFor="af-scan-input">
-                {scanFile ? "Change file" : "Click to upload a boarding pass or itinerary — photo or PDF"}
-                {scanFile && <div className="af-dropzone-filename">{scanFile.name}</div>}
-                <input
-                  id="af-scan-input" type="file" accept="image/*,application/pdf"
-                  onChange={handleScanFileChange} disabled={scanLoading}
-                />
-              </label>
-              <p className="af-help-text">
-                Gemini reads the flight details from the file and pre-fills the manual form below for you to review before saving — nothing is logged automatically.
-              </p>
-              {scanError && <div className="af-error">{scanError}</div>}
-              <div className="af-actions">
-                <button className="af-btn-primary" onClick={handleExtract} disabled={!scanFile || scanLoading}>
-                  {scanLoading ? (<><span className="af-spinner" />Extracting...</>) : "Extract details"}
-                </button>
-              </div>
-            </>
-          )}
-
-          {activeTab === "csv" && (
-            <>
-              <p className="af-help-text">
-                Bulk-add flights from a spreadsheet. Columns: <code>flight_number, airline, origin_iata, destination_iata, departure_year, departure_month, departure_day, aircraft_type, cabin_class, duration_minutes, notes</code>.{" "}
-                <a className="af-link" href="/flight-import-template.csv" download>Download template</a>
-              </p>
-              <label className="af-dropzone" htmlFor="af-csv-input">
-                {csvFile ? "Change file" : "Click to upload a .csv file"}
-                {csvFile && <div className="af-dropzone-filename">{csvFile.name}</div>}
-                <input
-                  id="af-csv-input" type="file" accept=".csv"
-                  onChange={e => { setCsvFile(e.target.files?.[0] || null); setCsvError(null); setCsvResult(null) }}
-                />
-              </label>
-              {csvError && <div className="af-error">{csvError}</div>}
-              <div className="af-actions">
-                <button className="af-btn-primary" onClick={handleImportCsv} disabled={!csvFile || csvLoading}>
-                  {csvLoading ? (<><span className="af-spinner" />Importing...</>) : "Import"}
-                </button>
-                {csvResult && <button className="af-btn-ghost" onClick={() => navigate("/")}>Done</button>}
-              </div>
-              {csvResult && (
-                <div className="af-result-box">
-                  {csvResult.created_count} flight{csvResult.created_count === 1 ? "" : "s"} added.
-                  {csvResult.errors.length > 0 && (
-                    <>
-                      <div style={{ marginTop: 8 }}>{csvResult.errors.length} row{csvResult.errors.length === 1 ? "" : "s"} skipped:</div>
-                      {csvResult.errors.map(e => (
-                        <div key={e.row} className="af-result-row-error">Row {e.row}: {e.message}</div>
-                      ))}
-                    </>
-                  )}
-                </div>
-              )}
-            </>
-          )}
-
-          {activeTab === "manual" && (
-          <>
           {error && <div className="af-error">{error}</div>}
 
           {/* ROUTE */}
@@ -535,10 +369,10 @@ function AddFlight() {
                   <option key={a.iata_code} value={a.name}>{a.name} ({a.iata_code})</option>
                 ))}
               </select>
-              {selectedAirlineCode && (
+              {resolvedAirlineCode && (
                 <img
                   className="af-airline-logo"
-                  src={`https://images.kiwi.com/airlines/64/${selectedAirlineCode}.png`}
+                  src={`https://images.kiwi.com/airlines/64/${resolvedAirlineCode}.png`}
                   alt={form.airline}
                   onError={e => { e.target.style.display = 'none' }}
                 />
@@ -551,14 +385,14 @@ function AddFlight() {
           <label className="af-label">
             <span>Flight Number</span>
             <div className="af-fn-wrap">
-              <div className="af-fn-prefix">{selectedAirlineCode || '--'}</div>
+              <div className="af-fn-prefix">{resolvedAirlineCode || '--'}</div>
               <input
                 className={`af-input af-fn-input ${formErrors.flight_number ? "invalid" : ""}`}
                 name="flight_number"
-                value={form.flight_number.replace(selectedAirlineCode, "")}
-                onChange={e => setForm({ ...form, flight_number: `${selectedAirlineCode}${e.target.value}` })}
-                placeholder={selectedAirlineCode ? "545" : "Select airline first"}
-                disabled={!selectedAirlineCode}
+                value={form.flight_number.replace(resolvedAirlineCode, "")}
+                onChange={e => setForm({ ...form, flight_number: `${resolvedAirlineCode}${e.target.value}` })}
+                placeholder={resolvedAirlineCode ? "545" : "Select airline first"}
+                disabled={!resolvedAirlineCode}
               />
             </div>
             {formErrors.flight_number && <div className="af-field-error">{formErrors.flight_number}</div>}
@@ -609,22 +443,19 @@ function AddFlight() {
           </label>
 
           <div className="af-actions">
-            <button className="af-btn-primary" onClick={handleSubmit} disabled={loading}>
-              {loading ? "Saving..." : "Log Flight"}
+            <button className="af-btn-primary" onClick={handleSubmit} disabled={saving}>
+              {saving ? "Saving..." : "Save Changes"}
             </button>
-            <button className="af-btn-ghost" onClick={() => navigate("/")}>Cancel</button>
+            <button className="af-btn-ghost" onClick={() => navigate("/my-flights")}>Cancel</button>
           </div>
-          </>
-          )}
         </div>
 
-        {/* ── RIGHT MAP PANEL ── */}
         <MapBackdropPanel tagline={<>Every flight<br/>tells a story</>}>
           <BoardingPassPreview
             form={form}
             originAirport={originAirport}
             destinationAirport={destinationAirport}
-            selectedAirlineCode={selectedAirlineCode}
+            selectedAirlineCode={resolvedAirlineCode}
           />
         </MapBackdropPanel>
 
@@ -634,4 +465,4 @@ function AddFlight() {
   );
 }
 
-export default AddFlight;
+export default EditFlight;

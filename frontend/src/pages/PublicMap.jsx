@@ -83,6 +83,11 @@ const styles = `
     font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
     color: #374151; letter-spacing: 0.15em; text-transform: uppercase;
   }
+
+  @media (max-width: 768px) {
+    .pm-header { padding: 20px 16px; }
+    .pm-stats { padding: 16px; gap: 20px; flex-wrap: wrap; }
+  }
 `
 
 function PublicMap() {

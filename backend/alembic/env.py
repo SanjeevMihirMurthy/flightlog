@@ -19,6 +19,7 @@ from app.models.flights import Flight
 from app.models.airports import Airport
 from app.models.airlines import Airlines
 from app.models.users import User
+from app.models.routes import Route
 
 from app.db.base import Base
 target_metadata = Base.metadata

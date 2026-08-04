@@ -178,6 +178,15 @@ const styles = `
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.3; transform: scale(0.5); }
   }
+
+  @media (max-width: 768px) {
+    .fm-header { padding: 20px 16px; }
+    .fm-legend {
+      top: auto; bottom: 92px; right: 12px; left: 12px;
+      min-width: 0; padding: 14px 16px; max-height: 36vh; overflow-y: auto;
+    }
+    .fm-stats { padding: 16px; gap: 20px; flex-wrap: wrap; }
+  }
 `
 
 function FlightMap() {

@@ -1,5 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 import os
 
@@ -45,6 +47,13 @@ app.add_middleware(
     same_site="lax",
     https_only=IS_RAILWAY,
 )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    message = exc.errors()[0].get("msg", "Invalid request")
+    if message.startswith("Value error, "):
+        message = message[len("Value error, "):]
+    return JSONResponse(status_code=422, content={"detail": message})
 
 @app.get("/")
 def root():

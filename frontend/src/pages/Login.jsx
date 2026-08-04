@@ -34,6 +34,11 @@ const styles = `
       radial-gradient(ellipse at center, transparent 20%, rgba(8,11,16,0.5) 100%);
   }
 
+  @keyframes login-pop-in {
+    from { opacity: 0; transform: scale(0.94) translateY(14px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
   .login-card {
     position: relative;
     z-index: 10;
@@ -44,6 +49,29 @@ const styles = `
     backdrop-filter: blur(18px);
     text-align: center;
     max-width: 380px;
+    animation: login-pop-in 0.6s cubic-bezier(0.34,1.56,0.64,1) backwards;
+  }
+
+  .login-blurb {
+    text-align: left;
+    background: rgba(59,130,246,0.05);
+    border-left: 2px solid rgba(59,130,246,0.4);
+    border-radius: 0 6px 6px 0;
+    padding: 12px 16px;
+    margin: 0 0 28px;
+  }
+  .login-blurb-text {
+    font-size: 0.72rem;
+    line-height: 1.6;
+    color: #9ca3af;
+    font-style: italic;
+    margin: 0 0 8px;
+  }
+  .login-blurb-byline {
+    font-size: 0.62rem;
+    color: #4a5568;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 
   .login-writeup {
@@ -53,18 +81,12 @@ const styles = `
     margin: 0 0 32px;
   }
 
-  .login-logo {
-    font-size: 1.6rem;
-    margin-bottom: 18px;
-  }
-
-  .login-title {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 1.6rem;
-    letter-spacing: -0.02em;
-    color: #fff;
-    margin: 0 0 8px;
+  .login-logo-img {
+    height: 40px;
+    width: auto;
+    display: block;
+    margin: 0 auto 18px;
+    mix-blend-mode: lighten;
   }
 
   .login-subtitle {
@@ -109,6 +131,10 @@ const styles = `
     letter-spacing: 0.02em;
     line-height: 1.5;
   }
+
+  @media (max-width: 480px) {
+    .login-card { padding: 32px 24px; }
+  }
 `
 
 function GoogleIcon() {
@@ -142,13 +168,21 @@ function Login() {
         <div className="login-video-overlay" />
 
         <div className="login-card">
-          <div className="login-logo">✈</div>
-          <h1 className="login-title">Flightlog</h1>
+          <img src="/logo.png" alt="Flightlog" className="login-logo-img" />
           <p className="login-subtitle">Your personal aviation passport</p>
           <p className="login-writeup">
             Log every flight you've ever taken — routes, airlines, aircraft —
             and watch your journeys come alive on the map.
           </p>
+          <div className="login-blurb">
+            <p className="login-blurb-text">
+              "There's a rush in every new aircraft, every new airline, every airport touched
+              down in for the first time. But nothing beats that first breath of Terminal 3 in
+              Dubai — Emirates' home, and the scent of another family trip beginning. This app
+              exists to hold onto moments like that."
+            </p>
+            <div className="login-blurb-byline">— Sanjeev (Flightlog)</div>
+          </div>
           {hasError && (
             <div className="login-error">
               Sign-in didn't go through — this can happen if the link was opened

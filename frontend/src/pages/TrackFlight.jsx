@@ -148,6 +148,13 @@ const styles = `
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
+
+  @media (max-width: 768px) {
+    .tf-content { padding: 24px 18px; }
+    .tf-search-row { flex-direction: column; }
+    .tf-route-grid { grid-template-columns: 1fr; text-align: left; gap: 12px; }
+    .tf-route-arrow { transform: rotate(90deg); }
+  }
 `
 
 function formatTime(iso) {
