@@ -1,0 +1,3 @@
+flight_number,airline,origin_iata,destination_iata,departure_year,departure_month,departure_day,aircraft_type,cabin_class,duration_minutes,notes
+AA100,American Airlines,JFK,LAX,2024,6,12,A321,Economy,330,
+BA286,British Airways,LHR,SFO,2023,,,,Business,,

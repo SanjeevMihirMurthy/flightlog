@@ -4,7 +4,10 @@ export const FLIGHT_API = {
   LIST: `${API_BASE_URL}/flights/all-flights`,
   CREATE: `${API_BASE_URL}/flights/add-flight`,
   GET_BY_ID: (id) => `${API_BASE_URL}/flights/${id}`,
+  UPDATE: (id) => `${API_BASE_URL}/flights/${id}`,
   DELETE: (id) => `${API_BASE_URL}/flights/${id}`,
+  EXTRACT: `${API_BASE_URL}/flights/extract`,
+  IMPORT_CSV: `${API_BASE_URL}/flights/import-csv`,
 }
 
 export const AIRPORT_API = {
@@ -13,7 +16,8 @@ export const AIRPORT_API = {
 }
 
 export const AIRLINES_API = {
-  LIST: `${API_BASE_URL}/airlines/all-airlines`
+  LIST: `${API_BASE_URL}/airlines/all-airlines`,
+  FOR_ROUTE: (origin, destination) => `${API_BASE_URL}/airlines/for-route?origin_iata=${origin}&destination_iata=${destination}`,
 }
 
 export const AUTH_API = {

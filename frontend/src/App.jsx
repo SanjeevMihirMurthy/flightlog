@@ -3,6 +3,7 @@ import Navbar from './components/Navbar'
 import ProtectedRoute from './components/ProtectedRoute'
 import FlightLog from './pages/Flightlog'
 import AddFlight from './pages/AddFlight'
+import EditFlight from './pages/EditFlight'
 import FlightMap from './pages/FlightMap'
 import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
@@ -27,6 +28,7 @@ function Layout() {
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/my-flights" element={<ProtectedRoute><FlightLog /></ProtectedRoute>} />
           <Route path="/add-flight" element={<ProtectedRoute><AddFlight /></ProtectedRoute>} />
+          <Route path="/edit-flight/:id" element={<ProtectedRoute><EditFlight /></ProtectedRoute>} />
           <Route path="/map" element={<ProtectedRoute><FlightMap /></ProtectedRoute>} />
           <Route path="/track" element={<ProtectedRoute><TrackFlight /></ProtectedRoute>} />
           <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { flightsApi } from '../api/flights'
+import { MapContainer, TileLayer } from 'react-leaflet'
+import { flightsApi, airlinesApi } from '../api/flights'
 import { useAuth } from '../context/useAuth'
+import 'leaflet/dist/leaflet.css'
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@700;800&display=swap');
@@ -25,11 +27,11 @@ const styles = `
     pointer-events: none;
   }
 
-  .db-map-bg svg {
+  .db-map-bg .leaflet-container {
     width: 100%;
     height: 100%;
     min-height: 100vh;
-    display: block;
+    background: #080b10;
   }
 
   .db-vignette {
@@ -376,10 +378,19 @@ const styles = `
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.35; transform: scale(0.55); }
   }
+
+  @media (max-width: 768px) {
+    .db-content { padding: 24px 18px; }
+    .db-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .db-stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .db-second-grid { grid-template-columns: 1fr; }
+    .db-actions-grid { grid-template-columns: 1fr; }
+  }
 `
 
 function Dashboard() {
   const [flights, setFlights] = useState([])
+  const [airlines, setAirlines] = useState([])
   const [loading, setLoading] = useState(true)
   const [linkCopied, setLinkCopied] = useState(false)
   const navigate = useNavigate()
@@ -390,6 +401,12 @@ function Dashboard() {
       .then(res => setFlights(res.data))
       .catch(err => console.error(err))
       .finally(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    airlinesApi.getAll()
+      .then(res => setAirlines(res.data || []))
+      .catch(() => {})
   }, [])
 
   const copyShareLink = () => {
@@ -439,8 +456,11 @@ function Dashboard() {
     .sort((a, b) => b.departure_year - a.departure_year)
     .slice(0, 4)
 
-  // Get airline IATA from flight number
+  // Get airline IATA from the airlines reference table, falling back to the flight number prefix
   const getAirlineCode = (airline) => {
+    const known = airlines.find(a => a.name === airline)
+    if (known?.iata_code) return known.iata_code
+
     const match = flights.find(f => f.airline === airline)
     if (match?.flight_number && match.flight_number.length >= 2) {
       return match.flight_number.substring(0, 2).toUpperCase()
@@ -453,52 +473,16 @@ function Dashboard() {
       <style>{styles}</style>
       <div className="db-root">
 
-        {/* SVG background — same as FlightLog */}
+        {/* Real map background */}
         <div className="db-map-bg">
-          <svg viewBox="0 0 1440 810" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-            <rect width="1440" height="810" fill="#080b10"/>
-            <g stroke="#1a2235" strokeWidth="0.5" opacity="0.9">
-              {[81,162,243,324,405,486,567,648,729].map(y =>
-                <line key={`h${y}`} x1="0" y1={y} x2="1440" y2={y}/>
-              )}
-              {[144,288,432,576,720,864,1008,1152,1296].map(x =>
-                <line key={`v${x}`} x1={x} y1="0" x2={x} y2="810"/>
-              )}
-            </g>
-            <path d="M95,120 L130,110 L180,108 L230,115 L270,130 L290,155 L310,180 L305,210 L285,240 L260,265 L240,290 L220,310 L200,330 L195,355 L210,370 L220,380 L210,390 L190,385 L170,370 L155,350 L145,330 L135,305 L125,280 L120,250 L112,220 L100,190 L92,160 Z" fill="#111827" stroke="#1e3a5f" strokeWidth="1" opacity="0.95"/>
-            <path d="M290,60 L330,55 L370,65 L385,90 L375,115 L350,125 L320,118 L300,100 Z" fill="#111827" stroke="#1e3a5f" strokeWidth="0.8" opacity="0.85"/>
-            <path d="M215,405 L250,410 L285,415 L315,420 L335,440 L345,470 L340,510 L325,545 L305,575 L280,600 L260,615 L245,605 L235,580 L225,550 L215,520 L210,490 L205,460 L205,435 Z" fill="#111827" stroke="#1e3a5f" strokeWidth="1" opacity="0.95"/>
-            <path d="M620,100 L650,95 L680,100 L710,108 L730,120 L740,140 L730,155 L710,160 L695,170 L680,165 L665,155 L650,148 L635,140 L625,128 Z" fill="#111827" stroke="#1e3a5f" strokeWidth="0.9" opacity="0.95"/>
-            <path d="M655,70 L670,60 L685,65 L690,80 L680,95 L665,100 L655,88 Z" fill="#111827" stroke="#1e3a5f" strokeWidth="0.7" opacity="0.8"/>
-            <path d="M640,200 L680,195 L715,198 L740,215 L755,245 L760,280 L758,315 L748,350 L730,385 L710,415 L690,440 L670,455 L650,450 L630,435 L618,410 L610,375 L608,340 L612,305 L618,270 L622,235 Z" fill="#111827" stroke="#1e3a5f" strokeWidth="1" opacity="0.95"/>
-            <path d="M730,90 L790,80 L860,75 L930,80 L1000,85 L1060,90 L1110,100 L1140,115 L1155,135 L1145,155 L1120,168 L1090,175 L1060,180 L1030,190 L1010,210 L1000,230 L980,245 L955,250 L930,248 L905,255 L885,270 L870,285 L855,295 L840,290 L825,278 L810,268 L795,260 L780,255 L765,248 L750,238 L740,222 L735,205 L730,188 L728,165 L725,140 Z" fill="#111827" stroke="#1e3a5f" strokeWidth="1" opacity="0.95"/>
-            <path d="M855,255 L885,270 L900,295 L910,325 L905,355 L888,370 L870,360 L855,340 L845,315 L840,288 Z" fill="#111827" stroke="#1e3a5f" strokeWidth="0.8" opacity="0.9"/>
-            <path d="M1050,450 L1110,440 L1160,445 L1195,460 L1210,485 L1205,515 L1185,538 L1155,548 L1120,545 L1085,535 L1060,515 L1042,490 L1040,465 Z" fill="#111827" stroke="#1e3a5f" strokeWidth="0.9" opacity="0.9"/>
-            <defs>
-              <filter id="db-glow-blue">
-                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
-              </filter>
-              <filter id="db-glow-soft">
-                <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
-                <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
-              </filter>
-            </defs>
-            <path d="M940,230 Q780,60 618,128" fill="none" stroke="#1d4ed8" strokeWidth="6" opacity="0.12" filter="url(#db-glow-soft)"/>
-            <path d="M940,230 Q700,100 260,165" fill="none" stroke="#2563eb" strokeWidth="5" opacity="0.10" filter="url(#db-glow-soft)"/>
-            <path d="M1020,370 Q980,300 940,230" fill="none" stroke="#1e40af" strokeWidth="5" opacity="0.10" filter="url(#db-glow-soft)"/>
-            <path d="M940,230 Q780,60 618,128" fill="none" stroke="#3b82f6" strokeWidth="1.2" opacity="0.7" filter="url(#db-glow-blue)" strokeDasharray="5,3"/>
-            <path d="M940,230 Q700,100 260,165" fill="none" stroke="#60a5fa" strokeWidth="1.2" opacity="0.6" filter="url(#db-glow-blue)" strokeDasharray="5,3"/>
-            <path d="M1020,370 Q980,300 940,230" fill="none" stroke="#3b82f6" strokeWidth="1.2" opacity="0.65" filter="url(#db-glow-blue)" strokeDasharray="4,3"/>
-            <circle cx="940" cy="230" r="5" fill="#3b82f6" opacity="0.9" filter="url(#db-glow-blue)"/>
-            <circle cx="940" cy="230" r="2.5" fill="#93c5fd"/>
-            <circle cx="618" cy="128" r="4" fill="#3b82f6" opacity="0.85" filter="url(#db-glow-blue)"/>
-            <circle cx="618" cy="128" r="2" fill="#93c5fd"/>
-            <circle cx="260" cy="165" r="4" fill="#3b82f6" opacity="0.8" filter="url(#db-glow-blue)"/>
-            <circle cx="260" cy="165" r="2" fill="#93c5fd"/>
-            <circle cx="1020" cy="370" r="4" fill="#3b82f6" opacity="0.8" filter="url(#db-glow-blue)"/>
-            <circle cx="1020" cy="370" r="2" fill="#93c5fd"/>
-          </svg>
+          <MapContainer
+            center={[20, 10]} zoom={2} minZoom={2} maxZoom={2}
+            zoomControl={false} dragging={false} scrollWheelZoom={false}
+            doubleClickZoom={false} touchZoom={false} boxZoom={false}
+            keyboard={false} attributionControl={false}
+          >
+            <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+          </MapContainer>
         </div>
 
         <div className="db-vignette" />

@@ -141,6 +141,11 @@ const styles = `
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
+
+  @media (max-width: 768px) {
+    .ach-content { padding: 24px 18px; }
+    .ach-stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
 `
 
 function Achievements() {
